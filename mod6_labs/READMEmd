@@ -1,0 +1,80 @@
+# Weather Application - Module 6 Lab
+
+## Student Information
+- **Name**: John Careal T. Morandarte
+- **Student ID**: 231002326
+- **Course**: CCCS 106
+- **Section**: 3-A
+
+## Project Overview
+This is an open-source cross-platform weather app written in Flet and it is a framework that enables one to build beautiful interactive desktop, mobile and web apps in Python.
+
+The app downloads real-time and prediction weather data on the OpenWeatherMap API using a name of a city fed by a user. It has a modern, responsive user interface designed and adopts major functions, including unit conversion and theme switching.
+
+## Features Implemented
+1. **Search History**
+2. **Temperature Unit Toggle**
+3. **Weather Condition Icons and Colors**
+4. **5-Day Weather Forecast**
+5. **Dark Mode Support**
+
+### Base Features
+- [✓] City search functionality
+- [✓] Current weather display
+- [✓] Temperature, humidity, wind speed
+- [✓] Weather icons
+- [✓] Error handling
+- [✓] Modern UI with Material Design
+
+### Enhanced Features
+1. **Search History**
+   - It is the feature that stores the last 10 successfully searched names of cities in a dropdown so that they can be accessed easily and repeated.
+   - The reason I chose this feature is because it enhances the convenience of the users by preventing the need to retype some of the commonly visited locations.
+   - The difficulty was how to deal with the continuous storage and retrieval of the list which I have done correctly by employing the Python json module to preserve information in a local .json file.
+
+2. **Temperature Unit Toggle**
+   - This feature gives the user the ability to switch displayed temperature of current conditions and the forecast of both Celsius (°C) and Fahrenheit (°F).
+   - I did this so that it could be used globally since various parts of the world use different standard temperatures.
+   - The primary issue was how to simultaneously update the switch state, label colors, and all temperature controls (current and forecast) and it was addressed through centralizing unit logic and via asynchronous update function (update display).
+
+3. **Weather Condition Icons and Colors**
+   - It is a dynamic application that shows the background color of the page and a weather emoji/icon, depending on the description of the current weather (e.g., clear, rain, snow).
+   - This attribute was selected to give immediate and easy visual feedback to the user concerning the prevailing weather condition.
+   - The issue was to properly decode the description string of the OpenWeatherMap as one of the fixed set of visual categories which was resolved by searching keywords (rain, cloud, clear) in the description string.
+
+4. **5-Day Weather Forecast**
+   - The feature takes the data in the API of 3 hours intervals and creates and shows a simplified visual of the lowest and highest temperatures in the coming five days.
+   - An effective weather application should offer a future projection to not only be useful, but also not limited to the present conditions.
+   - The problem was to combine the 3-hour data points into useful summaries of the data on a daily basis (to find the real min/max), this was addressed by using the Python collections.defaultdict to sort the data by date.
+
+
+## Screenshots
+![MAIN DISPLAY](<SCREENSHOTS/MAIN DISPLAY.png>) 
+![MAIN WEATHER DISPLAY](<SCREENSHOTS/MAIN WEATHER DISPLAY.png>) 
+![DARKMODE](SCREENSHOTS/DARKMODE.png) 
+![RECENT SEARCH](<SCREENSHOTS/RECENT SEARCH.png>) 
+![TEMPERATURE UNIT TOGGLE](<SCREENSHOTS/TEMPERATURE UNIT TOGGLE.png>) 
+![5_DAY WEATHER FORECAST](<SCREENSHOTS/5_DAY WEATHER FORECAST.png>)
+
+## Installation
+
+### Prerequisites
+- Python 3.8 or higher
+- pip package manager
+
+### Setup Instructions
+```bash
+# Clone the repository
+git clone https://github.com/<cjayputi31>/cccs106-projects.git
+cd cccs106-projects/mod6_labs
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create .env file
+cp .env.example .env
+# Add your OpenWeatherMap API key to .env
