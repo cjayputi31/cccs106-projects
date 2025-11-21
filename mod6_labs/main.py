@@ -100,7 +100,7 @@ class WeatherApp:
             animate_opacity=300,
         )
 
-        # Forecast container (will hold both summary cards and tabs/expanders)
+        # Forecast container
         self.forecast_container = ft.Container(
             visible=False,
             padding=10,
@@ -293,8 +293,7 @@ class WeatherApp:
             # Use only the date part (YYYY-MM-DD)
             date_str = dt_txt.split(" ")[0]
             daily_forecasts[date_str].append(item)
-            
-        # 2. Process and summarize daily data
+
         summary_items = []
         # Get the forecast for the next 5 days, starting from the day *after* today's first forecast
         sorted_dates = sorted(daily_forecasts.keys())[1:6] 
@@ -339,8 +338,6 @@ class WeatherApp:
                 'description': description,
                 'icon_code': icon_code
             })
-
-        # 3. Build summary cards (Unit conversion logic applied here)
         summary_cards = []
         unit_symbol = "°F" if self.current_unit == "imperial" else "°C"
 
@@ -453,22 +450,30 @@ class WeatherApp:
     def toggle_units(self, e):
         # Check if weather data is loaded
         if self.current_temp_c is None:
+            # Update to reflect unit button text change even if no data is loaded
+            if self.current_unit == "metric":
+                self.current_unit = "imperial"
+                self.unit_button.text = "°F"
+            else:
+                self.current_unit = "metric"
+                self.unit_button.text = "°C"
+            self.page.update()
             return
 
-        # 1. Toggle the internal state
         if self.current_unit == "metric":
             self.current_unit = "imperial"
             self.unit_button.text = "°F"
         else:
             self.current_unit = "metric"
             self.unit_button.text = "°C"
-
-        # 2. Trigger the asynchronous display update via run_task
         self.page.run_task(self.update_display)
 
     async def update_display(self):
         """Updates both current weather and forecast asynchronously."""
         if not self.weather_container.content:
+            # Must call page.update() here, even if early exit, to update the unit button's text
+            # and theme change if it was an empty state.
+            self.page.update() # NO AWAIT HERE
             return
         
         unit_symbol = "°F" if self.current_unit == "imperial" else "°C"
@@ -480,11 +485,15 @@ class WeatherApp:
         if self.current_unit == "imperial":
             temp_to_display = self.c_to_f(temp_to_display)
             feels_to_display = self.c_to_f(feels_to_display)
-            
-        # Re-apply weather container theme based on current theme mode
+
         if self.page.theme_mode == ft.ThemeMode.LIGHT:
-            description_text = self.weather_container.content.controls[1].controls[1].value
-            description = description_text.split(" ", 1)[-1].strip() 
+            # Fixed logic to safely extract description from nested controls
+            description_text_control = self.weather_container.content.controls[1].controls[1]
+            description_text = description_text_control.value if isinstance(description_text_control, ft.Text) else ""
+            
+            # The emoji is the first character, description starts after the space
+            description = description_text.split(" ", 1)[-1].strip() if " " in description_text else description_text
+            
             _, light_bg_color = self.get_weather_visuals(description)
 
             self.page.bgcolor = light_bg_color
@@ -499,27 +508,20 @@ class WeatherApp:
         
         # Forecast Update Logic
         if self.forecast_data:
-            # AWAIT the forecast display since update_display is now async
             await self.display_forecast(self.forecast_data) 
-
-        # 3. Update the controls and page (FIXED LINE)
-        await self.page.update()
+        self.page.update()
 
     def toggle_theme(self, e):
-        # 1. Update the theme mode immediately
         if self.page.theme_mode == ft.ThemeMode.LIGHT:
             self.page.theme_mode = ft.ThemeMode.DARK
             self.theme_button.icon = ft.Icons.LIGHT_MODE
         else:
             self.page.theme_mode = ft.ThemeMode.LIGHT
             self.theme_button.icon = ft.Icons.DARK_MODE
-        
-        # 2. Rerender all components (colors, forecast, etc.) using update_display 
+
         if self.weather_container.visible:
-             # Run the new async update_display
-             self.page.run_task(self.update_display)
+            self.page.run_task(self.update_display)
         else:
-            # Only update the page to show the theme change if no weather data is present
             self.page.update()
 
     def load_history(self):
