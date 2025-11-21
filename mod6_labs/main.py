@@ -24,7 +24,7 @@ class WeatherApp:
         # API fetches in metric, store these base values
         self.current_temp_c = None
         self.current_feels_like_c = None
-        self.forecast_data = None # Store raw, metric forecast data
+        self.forecast_data = None 
         self.weather_container = None
         self.forecast_container = None
         self.setup_page()
